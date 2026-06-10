@@ -1,15 +1,90 @@
-<h1>جستجو</h1>
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>جستجو</title>
+</head>
+<body>
+
+<h1>سامانه ثبت احوال</h1>
 
 <form method="get">
 
     <input
         type="text"
         name="q"
-        placeholder="جستجو"
+        placeholder="نام، نام خانوادگی، کد ملی یا شماره تلفن"
+        value="{{ request.GET.q }}"
     >
 
-    <button>
+    <button type="submit">
         جستجو
     </button>
 
 </form>
+
+<hr>
+
+{% if error %}
+    <h3>{{ error }}</h3>
+{% endif %}
+
+{% if count is not None %}
+
+    <p>
+        تعداد نتایج:
+        {{ count }}
+    </p>
+
+    <p>
+        زمان جستجو:
+        {{ elapsed_time }} ثانیه
+    </p>
+
+{% endif %}
+
+<hr>
+
+{% for person in results %}
+
+    <div>
+
+        <p>
+            <strong>نام:</strong>
+            {{ person.first_name }}
+        </p>
+
+        <p>
+            <strong>نام خانوادگی:</strong>
+            {{ person.last_name }}
+        </p>
+
+        <p>
+            <strong>کد ملی:</strong>
+            {{ person.national_code }}
+        </p>
+
+        <p>
+            <strong>شماره تلفن:</strong>
+            {{ person.phone_number }}
+        </p>
+
+        <p>
+            <strong>نام پدر:</strong>
+            {{ person.father_name }}
+        </p>
+
+        <hr>
+
+    </div>
+
+{% empty %}
+
+    {% if request.GET.q %}
+        <p>نتیجه‌ای یافت نشد.</p>
+    {% endif %}
+
+{% endfor %}
+
+</body>
+</html>

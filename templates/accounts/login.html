@@ -1,10 +1,30 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>ورود</title>
+</head>
+<body>
+
 <h1>ورود</h1>
 
 <form method="post">
+
     {% csrf_token %}
+
     {{ form.as_p }}
 
-    <button>
+    <button type="submit">
         ورود
     </button>
+
 </form>
+
+<p>
+    <a href="{% url 'register' %}">
+        ثبت نام
+    </a>
+</p>
+
+</body>
+</html>
