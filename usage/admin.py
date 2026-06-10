@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import (
+    UserQuota,
+    SearchLog
+)
+
+admin.site.register(UserQuota)
+admin.site.register(SearchLog)
