@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>کاربران</title>
+</head>
+<body>
+
+<h1>مدیریت کاربران</h1>
+
+<p><a href="{% url 'dashboard_home' %}">بازگشت</a></p>
+
+<table border="1">
+    <tr>
+        <th>نام کاربری</th>
+        <th>مصرف امروز</th>
+        <th>سقف روزانه</th>
+        <th>مصرف ماه</th>
+        <th>سقف ماهانه</th>
+        <th>عملیات</th>
+    </tr>
+
+    {% for row in rows %}
+    <tr>
+        <td>{{ row.user.username }}</td>
+        <td>{{ row.daily }}</td>
+        <td>{{ row.quota.daily_limit }}</td>
+        <td>{{ row.monthly }}</td>
+        <td>{{ row.quota.monthly_limit }}</td>
+        <td><a href="{% url 'dashboard_edit_quota' row.user.id %}">ویرایش سقف</a></td>
+    </tr>
+    {% endfor %}
+
+</table>
+
+</body>
+</html>

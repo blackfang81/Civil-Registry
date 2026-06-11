@@ -25,7 +25,8 @@ class Citizen(models.Model):
     )
 
     father_name = models.CharField(
-        max_length=100
+        max_length=100,
+        db_index=True,
     )
 
     birth_date = models.DateField()

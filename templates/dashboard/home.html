@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>پنل مدیریت</title>
+</head>
+<body>
+
+<h1>پنل مدیریت</h1>
+
+<p><a href="{% url 'search' %}">بازگشت به جستجو</a></p>
+
+<ul>
+    <li><a href="{% url 'dashboard_users' %}">مدیریت کاربران و مصرف</a></li>
+    <li><a href="{% url 'dashboard_global_quota' %}">تنظیم سقف کلی مصرف</a></li>
+</ul>
+
+</body>
+</html>

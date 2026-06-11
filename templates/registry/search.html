@@ -8,38 +8,59 @@
 
 <h1>سامانه ثبت احوال</h1>
 
+<p>
+    <a href="{% url 'logout' %}">خروج</a>
+    {% if user.is_staff %}
+        | <a href="{% url 'dashboard_home' %}">پنل مدیریت</a>
+    {% endif %}
+</p>
+
+<p>
+    مصرف امروز: {{ daily_count }} / {{ daily_limit }}
+    |
+    مصرف این ماه: {{ monthly_count }} / {{ monthly_limit }}
+</p>
+
 <form method="get">
 
-    <input
-        type="text"
-        name="q"
-        placeholder="نام، نام خانوادگی، کد ملی یا شماره تلفن"
-        value="{{ request.GET.q }}"
-    >
+    <p>
+        <label>جستجو:</label><br>
+        <input type="text" name="q" placeholder="نام، نام خانوادگی، کد ملی یا شماره تلفن" value="{{ request.GET.q }}">
+    </p>
 
-    <button type="submit">
-        جستجو
-    </button>
+    <p>
+        <label>نام پدر:</label><br>
+        <input type="text" name="father_name" value="{{ father_name }}">
+    </p>
+
+    <p>
+        <label>تاریخ تولد از:</label><br>
+        <input type="date" name="birth_from" value="{{ birth_from }}">
+    </p>
+
+    <p>
+        <label>تاریخ تولد تا:</label><br>
+        <input type="date" name="birth_to" value="{{ birth_to }}">
+    </p>
+
+    <button type="submit">جستجو</button>
 
 </form>
 
 <hr>
 
 {% if error %}
-    <h3>{{ error }}</h3>
+    <p>{{ error }}</p>
 {% endif %}
 
 {% if count is not None %}
 
-    <p>
-        تعداد نتایج:
-        {{ count }}
-    </p>
+    <p>تعداد نتایج: {{ count }}</p>
+    <p>زمان جستجو: {{ elapsed_time }} ثانیه</p>
 
-    <p>
-        زمان جستجو:
-        {{ elapsed_time }} ثانیه
-    </p>
+    {% if count > 100 %}
+        <p>فقط ۱۰۰ نتیجه اول نمایش داده می‌شود.</p>
+    {% endif %}
 
 {% endif %}
 
@@ -48,39 +69,19 @@
 {% for person in results %}
 
     <div>
-
-        <p>
-            <strong>نام:</strong>
-            {{ person.first_name }}
-        </p>
-
-        <p>
-            <strong>نام خانوادگی:</strong>
-            {{ person.last_name }}
-        </p>
-
-        <p>
-            <strong>کد ملی:</strong>
-            {{ person.national_code }}
-        </p>
-
-        <p>
-            <strong>شماره تلفن:</strong>
-            {{ person.phone_number }}
-        </p>
-
-        <p>
-            <strong>نام پدر:</strong>
-            {{ person.father_name }}
-        </p>
-
+        <p>نام: {{ person.first_name }}</p>
+        <p>نام خانوادگی: {{ person.last_name }}</p>
+        <p>کد ملی: {{ person.national_code }}</p>
+        <p>شماره تلفن: {{ person.phone_number }}</p>
+        <p>نام پدر: {{ person.father_name }}</p>
+        <p>تاریخ تولد: {{ person.birth_date }}</p>
+        <p>آدرس: {{ person.address }}</p>
         <hr>
-
     </div>
 
 {% empty %}
 
-    {% if request.GET.q %}
+    {% if request.GET.q or request.GET.father_name or request.GET.birth_from or request.GET.birth_to %}
         <p>نتیجه‌ای یافت نشد.</p>
     {% endif %}
 

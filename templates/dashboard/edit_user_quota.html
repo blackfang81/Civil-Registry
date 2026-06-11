@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>ویرایش سقف کاربر</title>
+</head>
+<body>
+
+<h1>ویرایش سقف: {{ target_user.username }}</h1>
+
+<p>مصرف امروز: {{ daily }}</p>
+<p>مصرف این ماه: {{ monthly }}</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <p>
+        <label>سقف روزانه:</label><br>
+        <input type="number" name="daily_limit" value="{{ quota.daily_limit }}" min="0">
+    </p>
+
+    <p>
+        <label>سقف ماهانه:</label><br>
+        <input type="number" name="monthly_limit" value="{{ quota.monthly_limit }}" min="0">
+    </p>
+
+    <button type="submit">ذخیره</button>
+</form>
+
+<p><a href="{% url 'dashboard_users' %}">بازگشت</a></p>
+
+</body>
+</html>

@@ -1,102 +1,81 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.utils import timezone
-
-from datetime import timedelta
 import time
 
 from .models import Citizen
+from .search_utils import build_query_filter
 from usage.models import SearchLog, UserQuota
+from usage.utils import get_usage_counts
 
 
 @login_required
 def search_view(request):
 
-    q = request.GET.get("q")
+    q = request.GET.get("q", "").strip()
+    father_name = request.GET.get("father_name", "").strip()
+    birth_from = request.GET.get("birth_from", "").strip()
+    birth_to = request.GET.get("birth_to", "").strip()
 
-    if not q:
-        return render(
-            request,
-            "registry/search.html"
-        )
+    quota = UserQuota.objects.get(user=request.user)
+    daily_count, monthly_count = get_usage_counts(request.user)
 
-    if len(q) < 3:
-        return render(
-            request,
-            "registry/search.html",
-            {
-                "error": "حداقل 3 کاراکتر وارد کنید"
-            }
-        )
+    context = {
+        "daily_count": daily_count,
+        "daily_limit": quota.daily_limit,
+        "monthly_count": monthly_count,
+        "monthly_limit": quota.monthly_limit,
+        "father_name": father_name,
+        "birth_from": birth_from,
+        "birth_to": birth_to,
+    }
 
-    quota = UserQuota.objects.get(
-        user=request.user
-    )
+    if not q and not father_name and not birth_from and not birth_to:
+        return render(request, "registry/search.html", context)
 
-    # مصرف روزانه
-    today = timezone.now() - timedelta(days=1)
-
-    daily_count = SearchLog.objects.filter(
-        user=request.user,
-        searched_at__gte=today
-    ).count()
-
-    # مصرف ماهانه
-    now = timezone.now()
-
-    monthly_count = SearchLog.objects.filter(
-        user=request.user,
-        searched_at__year=now.year,
-        searched_at__month=now.month
-    ).count()
+    if q and len(q) < 3:
+        context["error"] = "حداقل ۳ کاراکتر وارد کنید"
+        return render(request, "registry/search.html", context)
 
     if daily_count >= quota.daily_limit:
-        return render(
-            request,
-            "registry/search.html",
-            {
-                "error": "سقف مصرف روزانه تکمیل شده"
-            }
-        )
+        context["error"] = "سقف مصرف روزانه تکمیل شده است"
+        return render(request, "registry/search.html", context)
 
     if monthly_count >= quota.monthly_limit:
-        return render(
-            request,
-            "registry/search.html",
-            {
-                "error": "سقف مصرف ماهانه تکمیل شده"
-            }
-        )
+        context["error"] = "سقف مصرف ماهانه تکمیل شده است"
+        return render(request, "registry/search.html", context)
 
     start = time.perf_counter()
 
-    queryset = Citizen.objects.filter(
-        Q(first_name__icontains=q) |
-        Q(last_name__icontains=q) |
-        Q(national_code__icontains=q) |
-        Q(phone_number__icontains=q)
-    )
+    queryset = Citizen.objects.all()
+
+    if q:
+        q_filter, error = build_query_filter(q)
+        if error:
+            context["error"] = error
+            return render(request, "registry/search.html", context)
+        queryset = queryset.filter(q_filter)
+
+    if father_name:
+        queryset = queryset.filter(father_name__icontains=father_name)
+
+    if birth_from:
+        queryset = queryset.filter(birth_date__gte=birth_from)
+
+    if birth_to:
+        queryset = queryset.filter(birth_date__lte=birth_to)
 
     result_count = queryset.count()
-
-    results = queryset[:100]
+    results = list(queryset[:100])
 
     elapsed_time = time.perf_counter() - start
 
-    SearchLog.objects.create(
-        user=request.user,
-        query=q
-    )
+    SearchLog.objects.create(user=request.user, query=q or "فیلتر")
 
-    context = {
+    context.update({
         "results": results,
         "count": result_count,
         "elapsed_time": round(elapsed_time, 4),
-    }
+    })
 
-    return render(
-        request,
-        "registry/search.html",
-        context
-    )
+    return render(request, "registry/search.html", context)

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>سقف کلی</title>
+</head>
+<body>
+
+<h1>تنظیم سقف کلی مصرف</h1>
+
+<p>این مقادیر برای کاربران جدید استفاده می‌شود.</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <p>
+        <label>سقف روزانه:</label><br>
+        <input type="number" name="daily_limit" value="{{ global_quota.daily_limit }}" min="0">
+    </p>
+
+    <p>
+        <label>سقف ماهانه:</label><br>
+        <input type="number" name="monthly_limit" value="{{ global_quota.monthly_limit }}" min="0">
+    </p>
+
+    <p>
+        <label>
+            <input type="checkbox" name="apply_all" value="1">
+            اعمال روی همه کاربران فعلی
+        </label>
+    </p>
+
+    <button type="submit">ذخیره</button>
+</form>
+
+<p><a href="{% url 'dashboard_home' %}">بازگشت</a></p>
+
+</body>
+</html>
